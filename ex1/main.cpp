@@ -1,9 +1,10 @@
+#include <chrono>
+#include <iostream>
 #include "lib/argparse.hpp"
 #include "decomposition.hpp"
 #include "matrix.hpp"
 #include "reader.hpp"
 #include "solver.hpp"
-#include <iostream>
 
 int main(int argc, char **argv)
 {
@@ -22,7 +23,7 @@ int main(int argc, char **argv)
     parser.add_argument("-n", "--n-tests")
         .help("tests count")
         .scan<'u', unsigned int>()
-        .default_value(5);
+        .default_value<unsigned int>(5);
 
     try {
         parser.parse_args(argc, argv);
@@ -46,15 +47,8 @@ int main(int argc, char **argv)
     vector<vector<double>> Q(n, vector<double>(n));
     vector<vector<double>> R(n, vector<double>(n));
 
-    // for (auto &r : A) {
-    //     for (auto v : r) {
-    //         std::cout << v << ' ';
-    //     }
-    //     std::cout << std::endl;
-    // }
-    // std::cout << std::endl;
-
     std::string method = parser.get<std::string>("--qr-method");
+    auto start = std::chrono::system_clock::now();
 
     if (method == "cholesky") {
         qr_decomposition_cholesky(A, Q, R);
@@ -62,31 +56,28 @@ int main(int argc, char **argv)
         qr_decomposition_householder(A, Q, R);
     }
 
-    for (auto &r : Q) {
-        for (auto v : r) {
-            std::cout << v << ' ';
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    for (auto &r : R) {
-        for (auto v : r) {
-            std::cout << v << ' ';
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-
-    std::cout << "Matrix difference norm: " << max_norm(A - Q * R) << std::endl << std::endl;
+    std::cout << "Decomposition time (ms): " << (std::chrono::system_clock::now() - start).count() * 1e-6 << std::endl;
+    std::cout << "Matrix difference norm: " << max_norm(A - Q * R) << '\n' << std::endl;
 
     double mean_disc{}, mean_err{};
     unsigned int n_tests = parser.get<unsigned int>("--n-tests");
 
     for (unsigned int i = 0; i < n_tests; ++i) {
         std::cout << "**Test " << i << "**\n";
+
         vector<double> x = generate_random(n);
         vector<double> f = A * x;
-        vector<double> x_ = solve(R, solve(Q, f));
+        vector<double> x_;
+
+        auto start = std::chrono::system_clock::now();
+
+        if (method == "cholesky") {
+            x_ = solve_cholesky(Q, R, f);
+        } else {
+            x_ = solve_householder(Q, R, f);
+        }
+
+        std::cout << "Solve time (ms): " << (std::chrono::system_clock::now() - start).count() * 1e-6 << std::endl;
 
         double disc = max_norm(f - A * x_);
         double err = max_norm(x - x_);
@@ -99,6 +90,7 @@ int main(int argc, char **argv)
 
     mean_disc /= n_tests;
     mean_err /= n_tests;
+
     std::cout << "Mean discrepancy: " << mean_disc << std::endl;
     std::cout << "Mean solution error: " << mean_err << std::endl;
 

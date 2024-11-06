@@ -62,6 +62,7 @@ void qr_decomposition_householder(
 
     int n = ca.size();
     vector<vector<double>> a(ca.begin(), ca.end());
+    q = one_mtx(q.size());
 
     for (int k = 0; k < n - 1; ++k) {
         vector<double> x(n);
@@ -77,6 +78,7 @@ void qr_decomposition_householder(
         vector<vector<double>> p = one_mtx(n) - uut_mul(u) * (2 / pow(l2_norm(u), 2));
         q = q * p;
         a = p * a;
-        r = a;
     }
+
+    r = a;
 }
