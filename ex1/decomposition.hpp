@@ -7,7 +7,7 @@
 
 using std::vector;
 
-void qr_decomposition_holetskii(
+void qr_decomposition_cholesky(
     vector<vector<double>> &a,
     vector<vector<double>> &q,
     vector<vector<double>> &r

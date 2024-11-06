@@ -22,7 +22,14 @@ double l2_norm(const vector<double> &v)
 double max_norm(const vector<double> &v)
 {
     assert(v.size());
-    return *std::max_element(v.begin(), v.end());
+
+    double max_abs = abs(v.front());
+
+    for (size_t i = 1; i < v.size(); ++i) {
+        max_abs = std::max(max_abs, abs(v[i]));
+    }
+
+    return max_abs;
 }
 
 double max_norm(const vector<vector<double>> &mtx)

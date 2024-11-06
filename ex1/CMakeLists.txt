@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(QrDecompositionSolver VERSION 1.0 LANGUAGES CXX)
 
 add_library(QrLibrary
-    csv.hpp
+    lib/argparse.hpp
+    lib/csv.hpp
     decomposition.hpp
     matrix.hpp
     reader.hpp
@@ -21,5 +22,3 @@ if(MSVC)
 else()
   target_compile_options(QrDecompositionSolver PRIVATE -Wall -Werror -O3)
 endif()
-
-target_compile_definitions(QrDecompositionSolver PRIVATE ${QR_METHOD})
