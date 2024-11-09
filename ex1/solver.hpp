@@ -1,17 +1,20 @@
 #pragma once
 
 #include <assert.h>
-#include <stdlib.h>
+#include <random>
 #include "matrix.hpp"
 
 using std::vector;
+
+std::mt19937 gen(std::chrono::system_clock::now().time_since_epoch().count());
 
 vector<double> generate_random(size_t n)
 {
     vector<double> x(n);
 
     for (size_t i = 0; i < n; ++i) {
-        x[i] = (double) rand() / RAND_MAX * 2 - 1;
+        double x_norm = ((double) gen() - gen.min()) / (gen.max() - gen.min());
+        x[i] = x_norm * 2 - 1;
     }
 
     return x;
